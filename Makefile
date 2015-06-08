@@ -1,4 +1,4 @@
 run:
-	npm install
+	sudo npm install
 	bower install
 	brunch watch --server
