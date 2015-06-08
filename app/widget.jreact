@@ -1,0 +1,8 @@
+mixin make_elem(elem)
+    div= elem
+    br
+    div HELLO
+    br
+    br
+each elem in [1,2,3,4,5]
+    +make_elem(elem)

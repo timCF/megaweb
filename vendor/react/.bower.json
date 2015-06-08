@@ -1,0 +1,14 @@
+{
+  "name": "react",
+  "main": "react.min.js",
+  "ignore": [],
+  "homepage": "https://github.com/d0rc/react-bower",
+  "_release": "b7c76e3960",
+  "_resolution": {
+    "type": "commit",
+    "commit": "b7c76e396048d1a065649071a429ae8c1efd88aa"
+  },
+  "_source": "git://github.com/d0rc/react-bower.git",
+  "_target": "b7c76e396048d1a065649071a429ae8c1efd88aa",
+  "_originalSource": "d0rc/react-bower"
+}
