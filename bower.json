@@ -4,7 +4,8 @@
   "main": "public/app.js",
   "dependencies": {
     "react": "d0rc/react-bower#b7c76e396048d1a065649071a429ae8c1efd88aa",
-    "jquery": "~2.1.4"
+    "jquery": "~2.1.4",
+    "bootstrap": "~3.3.4"
   },
   "overrides": {}
 }
