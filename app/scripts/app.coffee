@@ -1,19 +1,44 @@
-state  = {data: {}, const: {}}
-widget = require("widget")
+state =
+	const: {}
+	data: {
+		foo: 1
+		bar: "HELLO, WORLD!"
+	}
+	opts: {
+		visibility: {
+			foo: "visible"
+			bar: "hidden"
+		}
+	}
+	handlers: {
+		change_from_view: (key, ev) ->
+			if ev? and ev.target? and ev.target.value?
+				state.data[key] = ev.target.value
+		show_this: (some) -> Object.keys(state.opts.visibility).map (key) -> if some == key then state.opts.visibility[key] = "visible" else state.opts.visibility[key] = "hidden"
+		send_button: (key) -> to_server(key, state.data[key])
+	}
 
+
+widget = require("widget")
 renderTimeout = null
 renderStarted = false
 domelement    = null
 bullet = $.bullet("ws://" + location.hostname + ":8081/bullet")
 
-send_message = (message, content) ->
+
+to_server = (subject, content) ->
 	bullet.send(JSON.stringify({"subject": subject,"content": content}))
-renderMessage = () ->
+#
+#	view renderers
+#
+render = () ->
 	if renderStarted is false
 		renderStarted = true
-		React.render(widget(state), domelement) if domelement?
-		clearTimeout renderTimeout
-		renderTimeout = setTimeout renderMessage, 1000
+		render_process()
+render_process = () ->
+	React.render(widget(state), domelement) if domelement?
+	clearTimeout renderTimeout
+	renderTimeout = setTimeout render_process, 500
 #
 #	notifications
 #
@@ -24,22 +49,22 @@ warn = (mess) ->
 notice = (mess) ->
 	$.growl.notice({ message: mess , duration: 20000})
 #
-#	notifications
+#	bullet handlers
 #
 document.addEventListener "DOMContentLoaded", (e) ->
-	domelement  = document.getElementsByClassName("container")[0]
+	domelement  = document.getElementsByClassName("container-fluid")[0]
 	bullet.onopen = () -> 
 		notice("bullet websocket: connected")
-		renderMessage()
+		render()
 	bullet.ondisconnect = () -> 
 		error("bullet websocket: disconnected")
-		renderMessage()
+		render()
 	bullet.onclose = () -> 
 		warn("bullet websocket: closed")
-		renderMessage()
+		render()
 	bullet.onheartbeat = () ->
-		send_message("ping","nil")
-		renderMessage()
+		to_server("ping","nil")
+		render()
 	bullet.onmessage = (e) -> 
 		mess = $.parseJSON(e.data)
 		subject = mess.subject
@@ -50,4 +75,4 @@ document.addEventListener "DOMContentLoaded", (e) ->
 			when "warn" then warn(content)
 			when "notice" then notice(content)
 			else alert("subject : "+subject+" | content : "+content)
-		renderMessage()
+		render()
