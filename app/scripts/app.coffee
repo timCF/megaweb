@@ -1,4 +1,4 @@
-state  = {}
+state  = {data: {}, const: {}}
 widget = require("widget")
 
 renderTimeout = null
@@ -37,12 +37,15 @@ document.addEventListener "DOMContentLoaded", (e) ->
 	bullet.onclose = () -> 
 		warn("bullet websocket: closed")
 		renderMessage()
+	bullet.onheartbeat = () ->
+		send_message("ping","nil")
+		renderMessage()
 	bullet.onmessage = (e) -> 
 		mess = $.parseJSON(e.data)
 		subject = mess.subject
 		content = mess.content
 		switch subject
-			when "ping" then send_message("pong","ok")
+			when "pong" then "ok"
 			when "error" then error(content)
 			when "warn" then warn(content)
 			when "notice" then notice(content)
