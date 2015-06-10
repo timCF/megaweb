@@ -13,9 +13,12 @@ div.row
 		div(class="#{visible_val}")
 			input.form-control(placeholder="#{key} == #{locals.data[key]}" onChange=locals.handlers.change_from_view(key))
 			button.btn.btn-warning.fill(type="button" onClick=locals.handlers.send_button(key)) SEND
-			br
-			br
-
+			div(class=locals.opts.visibility.foo)
+				p FOO stack : 
+				each value in locals.data.foo_stack
+					p= value
+div.row 
+	p Some static mixins :
 div.row
 	each i in [1,2,3,4,5,6,7,8,9,10,11]
 		each elem in [1,2,3,4,5,6,7,8,9,10,11]

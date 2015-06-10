@@ -2,6 +2,7 @@ state =
 	const: {}
 	data: {
 		foo: 1
+		foo_stack: []
 		bar: "HELLO, WORLD!"
 	}
 	opts: {
@@ -74,5 +75,6 @@ document.addEventListener "DOMContentLoaded", (e) ->
 			when "error" then error(content)
 			when "warn" then warn(content)
 			when "notice" then notice(content)
+			when "foo" then state.data.foo_stack.push(content)
 			else alert("subject : "+subject+" | content : "+content)
 		render()
