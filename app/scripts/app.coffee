@@ -4,7 +4,7 @@ widget = require("widget")
 renderTimeout = null
 renderStarted = false
 domelement    = null
-bullet = $.bullet("ws://" + location.hostname + ":8999/bullet")
+bullet = $.bullet("ws://" + location.hostname + ":8081/bullet")
 
 send_message = (message, content) ->
 	bullet.send(JSON.stringify({"subject": subject,"content": content}))
