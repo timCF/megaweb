@@ -1,37 +1,65 @@
-state =
-	const: {}
-	data: {
-		foo: 1
-		foo_stack: []
-		bar: "HELLO, WORLD!"
-	}
-	opts: {
+#
+#	constants, defaults as callbacks arity 0
+#
+constants = 
+	default_opts: () -> {
 		visibility: {
 			foo: "visible"
 			bar: "hidden"
 		}
 	}
+#
+#	state for jade
+#
+state =
+	data: {
+		foo: 1
+		foo_stack: []
+		bar: "HELLO, WORLD!"
+	}
 	handlers: {
+		#
+		#	app local handlers
+		#
+		send_button: (key) -> to_server(key, state.data[key])
+		#
+		#	some main-purpose handlers
+		#
 		change_from_view: (key, ev) ->
 			if ev? and ev.target? and ev.target.value?
 				state.data[key] = ev.target.value
-		show_this: (some) -> Object.keys(state.opts.visibility).map (key) -> if some == key then state.opts.visibility[key] = "visible" else state.opts.visibility[key] = "hidden"
-		send_button: (key) -> to_server(key, state.data[key])
+		show_block: (some) -> Object.keys(state.opts.visibility).map (key) -> if some == key then state.opts.visibility[key] = "visible" else state.opts.visibility[key] = "hidden"
+		switch_sidebar: () -> if state.opts.sidebar == "hidden" then state.opts.sidebar = "visible" else state.opts.sidebar = "hidden"
+		#
+		#	local storage
+		#
+		reset_opts: () ->
+			state.opts = constants.default_opts()
+			store.remove("opts")
+			warn("Reset options to defaults")
+		save_opts: () -> 
+			store.set("opts", state.opts)
+			notice("Options saved")
+		load_opts: () -> 
+			from_storage = store.get("opts")
+			if from_storage
+				state.opts = from_storage
+			else
+				state.handlers.reset_opts()
+			state.opts.sidebar = "hidden"
 	}
-
-
-widget = require("widget")
-renderTimeout = null
-renderStarted = false
-domelement    = null
-bullet = $.bullet("ws://" + location.hostname + ":8081/bullet")
-
-
+#
+#	messages
+#
 to_server = (subject, content) ->
 	bullet.send(JSON.stringify({"subject": subject,"content": content}))
 #
 #	view renderers
 #
+widget = require("widget")
+renderTimeout = null
+renderStarted = false
+domelement    = null
 render = () ->
 	if renderStarted is false
 		renderStarted = true
@@ -52,20 +80,16 @@ notice = (mess) ->
 #
 #	bullet handlers
 #
+bullet = $.bullet("ws://" + location.hostname + ":8081/bullet")
 document.addEventListener "DOMContentLoaded", (e) ->
 	domelement  = document.getElementsByClassName("container-fluid")[0]
-	bullet.onopen = () -> 
-		notice("bullet websocket: connected")
-		render()
-	bullet.ondisconnect = () -> 
-		error("bullet websocket: disconnected")
-		render()
-	bullet.onclose = () -> 
-		warn("bullet websocket: closed")
-		render()
-	bullet.onheartbeat = () ->
-		to_server("ping","nil")
-		render()
+	state.handlers.load_opts()
+	render()
+	console.log("DOMContentLoaded")
+	bullet.onopen = () -> notice("bullet websocket: connected")
+	bullet.ondisconnect = () -> error("bullet websocket: disconnected")
+	bullet.onclose = () -> warn("bullet websocket: closed")
+	bullet.onheartbeat = () -> to_server("ping","nil")
 	bullet.onmessage = (e) -> 
 		mess = $.parseJSON(e.data)
 		subject = mess.subject
@@ -77,4 +101,3 @@ document.addEventListener "DOMContentLoaded", (e) ->
 			when "notice" then notice(content)
 			when "foo" then state.data.foo_stack.push(content)
 			else alert("subject : "+subject+" | content : "+content)
-		render()

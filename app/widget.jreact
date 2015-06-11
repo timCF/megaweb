@@ -3,23 +3,28 @@ mixin make_elem(elem)
 		div(class="col-md-#{elem}") HELLO
 		div(class="col-md-#{12-elem}") WORLD
 nav.navbar.navbar-default.navbar-fixed-top.transparent
-	div(class="col-md-6")
-	div(class="col-md-6")
-		div(class="btn-group" role="group")
-			button.btn.btn-info(type="button" onClick=locals.handlers.show_this("foo")) FOO
-			button.btn.btn-success(type="button" onClick=locals.handlers.show_this("bar")) BAR
+	div.padded_left(class="btn-group" role="group")
+		button.btn.btn-default.navbar-brand(type="button" onClick=locals.handlers.switch_sidebar()) sidebar
+	div.padded_left(class="btn-group" role="group")
+		button.btn.btn-info.navbar-brand(type="button" onClick=locals.handlers.show_block("foo")) SHOW FOO
+		button.btn.btn-success.navbar-brand(type="button" onClick=locals.handlers.show_block("bar")) SHOW BAR
 div.row
 	each visible_val, key in locals.opts.visibility
-		div(class="#{visible_val}")
-			input.form-control(placeholder="#{key} == #{locals.data[key]}" onChange=locals.handlers.change_from_view(key))
-			button.btn.btn-warning.fill(type="button" onClick=locals.handlers.send_button(key)) SEND
+		div(class=visible_val)
+			h1= key
+			input.form-control(placeholder=locals.data[key] onChange=locals.handlers.change_from_view(key))
+			button.btn.btn-warning.fill(type="button" onClick=locals.handlers.send_button(key)) SEND TO SERVER
 			div(class=locals.opts.visibility.foo)
-				p FOO stack : 
+				h3 foo stack : 
 				each value in locals.data.foo_stack
-					p= value
+					h4= value
 div.row 
-	p Some static mixins :
+	h3 Some static mixins :
 div.row
 	each i in [1,2,3,4,5,6,7,8,9,10,11]
 		each elem in [1,2,3,4,5,6,7,8,9,10,11]
 			+make_elem(elem)
+div.navbar.navbar-default.sidebar.transparent.padded(class=locals.opts.sidebar)
+	div(class="btn-group" role="group")
+		button.btn.btn-danger(type="button" onClick=locals.handlers.reset_opts()) reset opts
+		button.btn.btn-warning(type="button" onClick=locals.handlers.save_opts()) save opts
