@@ -1,30 +1,98 @@
-mixin make_elem(elem)
+mixin opts_text_input(type, label, placeholder, path)
 	div.row
-		div(class="col-md-#{elem}") HELLO
-		div(class="col-md-#{12-elem}") WORLD
-nav.navbar.navbar-default.navbar-fixed-top.transparent
-	div.padded_left(class="btn-group" role="group")
-		button.btn.btn-default.navbar-brand(type="button" onClick=locals.handlers.switch_sidebar()) sidebar
-	div.padded_left(class="btn-group" role="group")
-		button.btn.btn-info.navbar-brand(type="button" onClick=locals.handlers.show_block("foo")) SHOW FOO
-		button.btn.btn-success.navbar-brand(type="button" onClick=locals.handlers.show_block("bar")) SHOW BAR
+		div.col-md-6
+			h5= label
+		div.col-md-6
+			input.form-control.fill(type=type placeholder=placeholder onChange=locals.handlers.change_from_view(path))
+mixin opts_checkbox_input(label, path)
+	div.row
+		div.col-md-6
+			h5= label
+		div.col-md-6
+			input(type="checkbox" onChange=locals.handlers.change_from_view_checkbox(path))
+mixin make_main_block(key)
+	if key == "main_tab"
+		div.tab_pagination(id="main_tab")
+	else if key == "extra_tabs"
+		p
+	else if key == "opts"
+		div.container-fluid.padded
+			div.row
+				h4.center Редактирование инструментария
+			div.row
+				div.col-md-6
+					h4 опции кнопки
+					div.container-fluid
+						+opts_text_input("number", "вставить в", "номер столбца", ["data", "extra_buttons_editor", "copy_to"])
+						+opts_checkbox_input("каждое слово с маленькой буквы", ["data", "extra_buttons_editor", "small_letter_all"])
+						+opts_checkbox_input("каждое слово с большой буквы", ["data", "extra_buttons_editor", "big_letter_all"])
+						+opts_checkbox_input("с маленькой буквы", ["data", "extra_buttons_editor", "small_letter"])
+						+opts_checkbox_input("с большой буквы", ["data", "extra_buttons_editor", "big_letter"])
+						div.row 
+							h5 Добавленные модификаторы подстрок (исполняются в порядке добавления)
+						div.row
+							each mod in locals.data.extra_buttons_editor.str_modifiers
+								b= "\""+mod.str+"\" "
+						div.row 
+							h5 Добавленные кнопки в инструментарии
+						div.row
+							each _, butt in locals.opts.extra_buttons
+								b= "\""+butt+"\" "
+						div.row.padded_top
+							div.col-md-4
+								input.form-control.fill(placeholder="имя кнопки" onChange=locals.handlers.change_from_view(["data", "extra_buttons_editor", "name"]))
+							div.col-md-8
+								div.fill(class="btn-group" role="group")
+									button.btn.btn-warning.fill50(type="button" onClick=locals.handlers.add_button()) добавить кнопку
+									button.btn.btn-danger.fill50(type="button" onClick=locals.handlers.delete_button()) удалить кнопку
+				div.col-md-6
+					h4 модификаторы подстрок для кнопки
+					div.container-fluid
+						+opts_text_input("text", "подстрока", "моя подстрока", ["data", "extra_buttons_editor", "str_modifier_fields", "str"])
+						+opts_checkbox_input("добавить в начало каждого слова", ["data", "extra_buttons_editor", "str_modifier_fields", "add_to_all_begin"])
+						+opts_checkbox_input("добавить в конец каждого слова", ["data", "extra_buttons_editor", "str_modifier_fields", "add_to_all_end"])
+						+opts_checkbox_input("добавить в начало фразы", ["data", "extra_buttons_editor", "str_modifier_fields", "add_to_begin"])
+						+opts_checkbox_input("добавить в конец фразы", ["data", "extra_buttons_editor", "str_modifier_fields", "add_to_end"])
+						+opts_checkbox_input("удалить подстроку", ["data", "extra_buttons_editor", "str_modifier_fields", "remove"])
+						+opts_text_input("text", "заменить на", "заменить на", ["data", "extra_buttons_editor", "str_modifier_fields", "replacement"])
+						+opts_checkbox_input("заменить подстроку", ["data", "extra_buttons_editor", "str_modifier_fields", "replace"])
+						div.row
+							div.col-md-12
+								div.fill(class="btn-group" role="group")
+									button.btn.btn-warning.fill50(type="button" onClick=locals.handlers.add_button_modifier()) добавить модификатор
+									button.btn.btn-danger.fill50(type="button" onClick=locals.handlers.delete_button_modifier()) удалить модификатор
+div.row
+	nav.navbar.navbar-default.navbar-fixed-top.transparent
+		div.padded_left(class="btn-group" role="group")
+			button.btn.btn-success.navbar-btn(type="button" onClick=locals.handlers.switch_sidebar()) инструменты
+		div.padded_left(class="btn-group" role="group")
+			button.btn.btn-success.navbar-btn(type="button" onClick=locals.handlers.show_block("main_tab")) данные
+			button.btn.btn-success.navbar-btn(type="button" onClick=locals.handlers.show_block("extra_tabs")) доп данные
+			button.btn.btn-success.navbar-btn(type="button" onClick=locals.handlers.show_block("opts")) опции
+div.navbar.navbar-default.sidebar.transparent.ontop(class=locals.opts.sidebar)
+	div.container-fluid.padded
+		div.row
+			div.col-md-7
+				div.btn-group.fill(role="group")
+					button.btn.btn-warning.fill50(type="button" onClick=locals.handlers.save_opts()) сохранить опции
+					button.btn.btn-danger.fill50(type="button" onClick=locals.handlers.reset_opts()) сбросить опции
+			div.col-md-5
+				div.btn-group.fill(role="group")
+					button.btn.btn-info.fill50(type="button" onClick=locals.handlers.undo()) отменить
+					button.btn.btn-info.fill50(type="button" onClick=locals.handlers.redo()) вернуть
+		div.row.padded_top
+			div.col-md-4
+				input.form-control.fill(placeholder="найти" onChange=locals.handlers.change_from_view(["data", "find"]))
+			div.col-md-4
+				input.form-control.fill(placeholder="заменить" onChange=locals.handlers.change_from_view(["data", "replace"]))
+			div.col-md-4
+				button.btn.btn-info.fill(type="button" onClick=locals.handlers.findreplace()) найти и заменить
+		div.row
+			each value, bname in locals.opts.extra_buttons
+				div.col-md-3.padded_top
+					button.btn.btn-info.fill(type="button" onClick=locals.handlers.extra_button_action(value))= bname
+
 div.row
 	each visible_val, key in locals.opts.visibility
 		div(class=visible_val)
-			h1= key
-			input.form-control(placeholder=locals.data[key] onChange=locals.handlers.change_from_view(key))
-			button.btn.btn-warning.fill(type="button" onClick=locals.handlers.send_button(key)) SEND TO SERVER
-			div(class=locals.opts.visibility.foo)
-				h3 foo stack : 
-				each value in locals.data.foo_stack
-					h4= value
-div.row 
-	h3 Some static mixins :
-div.row
-	each i in [1,2,3,4,5,6,7,8,9,10,11]
-		each elem in [1,2,3,4,5,6,7,8,9,10,11]
-			+make_elem(elem)
-div.navbar.navbar-default.sidebar.transparent.padded(class=locals.opts.sidebar)
-	div(class="btn-group" role="group")
-		button.btn.btn-danger(type="button" onClick=locals.handlers.reset_opts()) reset opts
-		button.btn.btn-warning(type="button" onClick=locals.handlers.save_opts()) save opts
+			+make_main_block(key)
