@@ -4,95 +4,42 @@ mixin opts_text_input(type, label, placeholder, path)
 			h5= label
 		div.col-md-6
 			input.form-control.fill(type=type placeholder=placeholder onChange=locals.handlers.change_from_view(path))
-mixin opts_checkbox_input(label, path)
-	div.row
-		div.col-md-6
-			h5= label
-		div.col-md-6
-			input(type="checkbox" onChange=locals.handlers.change_from_view_checkbox(path))
+mixin opts_button_input(label, path)
+	if Imuta.get_in(locals, path)
+		button.btn.btn-success.fill(type="button" onClick=locals.handlers.change_from_view_swap(path))= label
+	else
+		button.btn.btn-default.fill(type="button" onClick=locals.handlers.change_from_view_swap(path))= label
 mixin make_main_block(key)
-	if key == "main_tab"
-		div.tab_pagination(id="main_tab")
-	else if key == "extra_tabs"
-		p
+	if key == "main_page"
+		div.container-fluid.padded
+			div.row
+				div.col-md-12= "Главная"
+				+opts_button_input("hello", ["data","foo"])
 	else if key == "opts"
 		div.container-fluid.padded
 			div.row
-				h4.center Редактирование инструментария
-			div.row
-				div.col-md-6
-					h4 опции кнопки
-					div.container-fluid
-						+opts_text_input("number", "вставить в", "номер столбца", ["data", "extra_buttons_editor", "copy_to"])
-						+opts_checkbox_input("каждое слово с маленькой буквы", ["data", "extra_buttons_editor", "small_letter_all"])
-						+opts_checkbox_input("каждое слово с большой буквы", ["data", "extra_buttons_editor", "big_letter_all"])
-						+opts_checkbox_input("с маленькой буквы", ["data", "extra_buttons_editor", "small_letter"])
-						+opts_checkbox_input("с большой буквы", ["data", "extra_buttons_editor", "big_letter"])
-						div.row 
-							h5 Добавленные модификаторы подстрок (исполняются в порядке добавления)
-						div.row
-							each mod in locals.data.extra_buttons_editor.str_modifiers
-								b= "\""+mod.str+"\" "
-						div.row 
-							h5 Добавленные кнопки в инструментарии
-						div.row
-							each _, butt in locals.opts.extra_buttons
-								b= "\""+butt+"\" "
-						div.row.padded_top
-							div.col-md-4
-								input.form-control.fill(placeholder="имя кнопки" onChange=locals.handlers.change_from_view(["data", "extra_buttons_editor", "name"]))
-							div.col-md-8
-								div.fill(class="btn-group" role="group")
-									button.btn.btn-warning.fill50(type="button" onClick=locals.handlers.add_button()) добавить кнопку
-									button.btn.btn-danger.fill50(type="button" onClick=locals.handlers.delete_button()) удалить кнопку
-				div.col-md-6
-					h4 модификаторы подстрок для кнопки
-					div.container-fluid
-						+opts_text_input("text", "подстрока", "моя подстрока", ["data", "extra_buttons_editor", "str_modifier_fields", "str"])
-						+opts_checkbox_input("добавить в начало каждого слова", ["data", "extra_buttons_editor", "str_modifier_fields", "add_to_all_begin"])
-						+opts_checkbox_input("добавить в конец каждого слова", ["data", "extra_buttons_editor", "str_modifier_fields", "add_to_all_end"])
-						+opts_checkbox_input("добавить в начало фразы", ["data", "extra_buttons_editor", "str_modifier_fields", "add_to_begin"])
-						+opts_checkbox_input("добавить в конец фразы", ["data", "extra_buttons_editor", "str_modifier_fields", "add_to_end"])
-						+opts_checkbox_input("удалить подстроку", ["data", "extra_buttons_editor", "str_modifier_fields", "remove"])
-						+opts_text_input("text", "заменить на", "заменить на", ["data", "extra_buttons_editor", "str_modifier_fields", "replacement"])
-						+opts_checkbox_input("заменить подстроку", ["data", "extra_buttons_editor", "str_modifier_fields", "replace"])
-						div.row
-							div.col-md-12
-								div.fill(class="btn-group" role="group")
-									button.btn.btn-warning.fill50(type="button" onClick=locals.handlers.add_button_modifier()) добавить модификатор
-									button.btn.btn-danger.fill50(type="button" onClick=locals.handlers.delete_button_modifier()) удалить модификатор
+				div.col-md-12= "Опции"
 div.row
 	nav.navbar.navbar-default.navbar-fixed-top.transparent
 		div.padded_left(class="btn-group" role="group")
-			button.btn.btn-success.navbar-btn(type="button" onClick=locals.handlers.switch_sidebar()) инструменты
+			if locals.opts.sidebar == "visible"
+				button.btn.btn-success.navbar-btn(type="button" onClick=locals.handlers.switch_sidebar()) инструменты
+			else
+				button.btn.btn-default.navbar-btn(type="button" onClick=locals.handlers.switch_sidebar()) инструменты
 		div.padded_left(class="btn-group" role="group")
-			button.btn.btn-success.navbar-btn(type="button" onClick=locals.handlers.show_block("main_tab")) данные
-			button.btn.btn-success.navbar-btn(type="button" onClick=locals.handlers.show_block("extra_tabs")) доп данные
-			button.btn.btn-success.navbar-btn(type="button" onClick=locals.handlers.show_block("opts")) опции
+			each title in [{n: "main_page", l: "данные"},{n: "opts", l: "опции"}]
+				if locals.opts.showing_block == title.n
+					button.btn.btn-success.navbar-btn(type="button" onClick=locals.handlers.show_block(title.n))= title.l
+				else
+					button.btn.btn-default.navbar-btn(type="button" onClick=locals.handlers.show_block(title.n))= title.l
 div.navbar.navbar-default.sidebar.transparent.ontop(class=locals.opts.sidebar)
 	div.container-fluid.padded
 		div.row
-			div.col-md-7
+			div.col-md-12
 				div.btn-group.fill(role="group")
 					button.btn.btn-warning.fill50(type="button" onClick=locals.handlers.save_opts()) сохранить опции
 					button.btn.btn-danger.fill50(type="button" onClick=locals.handlers.reset_opts()) сбросить опции
-			div.col-md-5
-				div.btn-group.fill(role="group")
-					button.btn.btn-info.fill50(type="button" onClick=locals.handlers.undo()) отменить
-					button.btn.btn-info.fill50(type="button" onClick=locals.handlers.redo()) вернуть
-		div.row.padded_top
-			div.col-md-4
-				input.form-control.fill(placeholder="найти" onChange=locals.handlers.change_from_view(["data", "find"]))
-			div.col-md-4
-				input.form-control.fill(placeholder="заменить" onChange=locals.handlers.change_from_view(["data", "replace"]))
-			div.col-md-4
-				button.btn.btn-info.fill(type="button" onClick=locals.handlers.findreplace()) найти и заменить
-		div.row
-			each value, bname in locals.opts.extra_buttons
-				div.col-md-3.padded_top
-					button.btn.btn-info.fill(type="button" onClick=locals.handlers.extra_button_action(value))= bname
-
 div.row
-	each visible_val, key in locals.opts.visibility
-		div(class=visible_val)
-			+make_main_block(key)
+	each block in locals.opts.blocks
+		if locals.opts.showing_block == block
+			+make_main_block(block)

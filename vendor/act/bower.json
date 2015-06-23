@@ -1,0 +1,26 @@
+{
+  "name": "act",
+  "version": "0.0.0",
+  "homepage": "https://github.com/timCF/act",
+  "description": "very simple actors model for js based on queue",
+  "main": "act.js",
+  "keywords": [
+    "actor",
+    "actors",
+    "model"
+  ],
+  "authors": [
+    "timCF"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "imuta": "*"
+  }
+}
