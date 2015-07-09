@@ -3,8 +3,8 @@
 #
 constants = 
 	default_opts: () -> {
-		blocks: ["main_page", "opts"]
-		sidebar: "hidden" # | "visible"
+		blocks: [{val: "main_page", lab: "данные"},{val: "opts", lab: "опции"}]
+		sidebar: false
 		showing_block: "main_page"
 	}
 	colors: () -> {red: '#CC3300', yellow: '#FFFF00', pink: '#FF6699'}
@@ -23,7 +23,6 @@ init_state =
 		change_from_view: (path, ev) -> if (ev? and ev.target? and ev.target.value?) then actor.cast( (state) -> Imuta.put_in(state, path, ev.target.value) )
 		change_from_view_swap: (path) -> actor.cast( (state) -> Imuta.update_in(state, path, (bool) -> not(bool)) )
 		show_block: (some) -> actor.cast( (state) -> (state.opts.showing_block = some) ; state )
-		switch_sidebar: () -> actor.cast( (state) -> (if state.opts.sidebar == "hidden" then state.opts.sidebar = "visible" else state.opts.sidebar = "hidden"); state )
 		#
 		#	local storage
 		#
@@ -71,7 +70,7 @@ render_process = () ->
 		do_render()
 	catch error
 		console.log error
-	setTimeout(render_process, 500)
+	setTimeout( (() -> actor.zcast(() -> render_process())) , 500)
 #
 #	notifications
 #
@@ -88,7 +87,7 @@ bullet = $.bullet("ws://" + location.hostname + ":8083/bullet")
 document.addEventListener "DOMContentLoaded", (e) ->
 	domelement  = document.getElementById("main_frame")
 	actor.get().handlers.load_opts()
-	actor.cast( (state) -> render_process() ; state )
+	actor.zcast(() -> render_process())
 	bullet.onopen = () -> notice("bullet websocket: соединение с сервером установлено")
 	bullet.ondisconnect = () -> error("bullet websocket: соединение с сервером потеряно")
 	bullet.onclose = () -> warn("bullet websocket: соединение с сервером закрыто")

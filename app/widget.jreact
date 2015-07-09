@@ -1,45 +1,52 @@
-mixin opts_text_input(type, label, placeholder, path)
+mixin opts_text_input(type, lab, placeholder, path)
 	div.row
 		div.col-md-6
-			h5= label
+			h5= lab
 		div.col-md-6
 			input.form-control.fill(type=type placeholder=placeholder onChange=locals.handlers.change_from_view(path))
-mixin opts_button_input(label, path)
+mixin opts_button_input(lab, path)
 	if Imuta.get_in(locals, path)
-		button.btn.btn-success.fill(type="button" onClick=locals.handlers.change_from_view_swap(path))= label
+		button.btn.btn-success.fill(type="button" onClick=locals.handlers.change_from_view_swap(path))= lab
 	else
-		button.btn.btn-default.fill(type="button" onClick=locals.handlers.change_from_view_swap(path))= label
-mixin make_main_block(key)
-	if key == "main_page"
+		button.btn.btn-default.fill(type="button" onClick=locals.handlers.change_from_view_swap(path))= lab
+mixin sidebar(visibility)
+	div.navbar.navbar-default.sidebar.transparent.ontop(class=visibility)
 		div.container-fluid.padded
 			div.row
-				div.col-md-12= "Главная"
-				+opts_button_input("hello", ["data","foo"])
-	else if key == "opts"
-		div.container-fluid.padded
+				div.col-md-12
+					div.btn-group.fill(role="group")
+						button.btn.btn-warning.fill50(type="button" onClick=locals.handlers.save_opts()) сохранить опции
+						button.btn.btn-danger.fill50(type="button" onClick=locals.handlers.reset_opts()) сбросить опции
+mixin make_main_block(blo, visibility)
+	div.container-fluid.padded(class=visibility)
+		if blo.val == "main_page"
 			div.row
-				div.col-md-12= "Опции"
+				div.col-md-12
+					h4= blo.lab
+					+opts_button_input("hello", ["data","foo"])
+		else if blo.val == "opts"
+			div.row
+				div.col-md-12
+					h4= blo.lab
+//
+//	page content
+//
 div.row
 	nav.navbar.navbar-default.navbar-fixed-top.transparent
 		div.padded_left(class="btn-group" role="group")
-			if locals.opts.sidebar == "visible"
-				button.btn.btn-success.navbar-btn(type="button" onClick=locals.handlers.switch_sidebar()) инструменты
-			else
-				button.btn.btn-default.navbar-btn(type="button" onClick=locals.handlers.switch_sidebar()) инструменты
+			+opts_button_input("инструменты", ["opts","sidebar"])
 		div.padded_left(class="btn-group" role="group")
-			each title in [{n: "main_page", l: "данные"},{n: "opts", l: "опции"}]
-				if locals.opts.showing_block == title.n
-					button.btn.btn-success.navbar-btn(type="button" onClick=locals.handlers.show_block(title.n))= title.l
+			each blo in locals.opts.blocks
+				if locals.opts.showing_block == blo.val
+					button.btn.btn-success.navbar-btn(type="button" onClick=locals.handlers.show_block(blo.val))= blo.lab
 				else
-					button.btn.btn-default.navbar-btn(type="button" onClick=locals.handlers.show_block(title.n))= title.l
-div.navbar.navbar-default.sidebar.transparent.ontop(class=locals.opts.sidebar)
-	div.container-fluid.padded
-		div.row
-			div.col-md-12
-				div.btn-group.fill(role="group")
-					button.btn.btn-warning.fill50(type="button" onClick=locals.handlers.save_opts()) сохранить опции
-					button.btn.btn-danger.fill50(type="button" onClick=locals.handlers.reset_opts()) сбросить опции
-div.row
-	each block in locals.opts.blocks
-		if locals.opts.showing_block == block
-			+make_main_block(block)
+					button.btn.btn-default.navbar-btn(type="button" onClick=locals.handlers.show_block(blo.val))= blo.lab
+if locals.opts.sidebar
+	+sidebar("visible")
+else
+	+sidebar("hidden")
+each blo in locals.opts.blocks
+	if locals.opts.showing_block == blo.val
+		+make_main_block(blo, "visible")
+	else
+		+make_main_block(blo, "hidden")

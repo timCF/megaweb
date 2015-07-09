@@ -19,14 +19,13 @@
     "test",
     "tests"
   ],
-  "_release": "e02fbd26e0",
+  "_release": "fbf57631f8",
   "_resolution": {
     "type": "branch",
     "branch": "master",
-    "commit": "e02fbd26e0c8d8b9ad0770f97ab3fd7338abb9bb"
+    "commit": "fbf57631f8f690cd7691aa8ee4b67ca6861a0606"
   },
   "_source": "git://github.com/timCF/imuta.git",
   "_target": "*",
-  "_originalSource": "imuta",
-  "_direct": true
+  "_originalSource": "imuta"
 }

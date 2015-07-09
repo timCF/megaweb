@@ -30,6 +30,5 @@
   },
   "_source": "git://github.com/timCF/act.git",
   "_target": "*",
-  "_originalSource": "act",
-  "_direct": true
+  "_originalSource": "act"
 }
