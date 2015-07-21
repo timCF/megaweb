@@ -100,7 +100,7 @@ notice = (mess) ->
 #
 #	bullet handlers
 #
-bullet = $.bullet("ws://" + location.hostname + ":8083/bullet")
+bullet = $.bullet("ws://" + location.hostname + ":__PORT__/bullet")
 document.addEventListener "DOMContentLoaded", (e) ->
 	domelement  = document.getElementById("main_frame")
 	actor.get().handlers.load_opts()
