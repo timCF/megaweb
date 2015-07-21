@@ -33,11 +33,13 @@ init_state =
 		get_last_version: () -> 
 			val = actor.get().data.cache.last_version
 			if not(val)
+				res = $.ajax({type: 'GET', async: false, url: "http://"+location.host+"/version.json"}).responseJSON.versionExt
 				actor.cast((state) ->
-					res = $.ajax({type: 'GET', async: false, url: "http://"+location.host+"/version.json"}).responseJSON.versionExt
 					if Imuta.is_string(res) then state.data.cache.last_version = res
 					state)
-			val
+				res
+			else
+				val
 		reset_opts: () -> actor.cast((state) ->
 			state.opts = constants.default_opts()
 			store.remove("opts")
@@ -52,9 +54,9 @@ init_state =
 			from_storage = store.get("opts")
 			if from_storage then actor.cast((state) -> state.opts = from_storage ; state) else actor.get().handlers.reset_opts()
 			last_version = actor.get().handlers.get_last_version()
-			this_version = actor.get().opts.version
-			if not(Imuta.equal(this_version, last_version)) then error("Доступен клиент версии "+last_version+" но, вы используете клиент версии "+this_version+". Настоятельно рекомендуется сбросить опции, почистить кеш и обновить страницу.")
 			actor.cast((state) ->
+				this_version = state.opts.version
+				if not(Imuta.equal(this_version, last_version)) then error("Доступен клиент версии "+last_version+" но, вы используете клиент версии "+this_version+". Настоятельно рекомендуется сбросить опции, почистить кеш и обновить страницу.")
 				state.opts.showing_block = constants.default_opts().showing_block
 				state.opts.sidebar = constants.default_opts().sidebar
 				state)
