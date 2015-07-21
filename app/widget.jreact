@@ -41,6 +41,9 @@ div.row
 					button.btn.btn-success.navbar-btn(type="button" onClick=locals.handlers.show_block(blo.val))= blo.lab
 				else
 					button.btn.btn-default.navbar-btn(type="button" onClick=locals.handlers.show_block(blo.val))= blo.lab
+		div.padded_left(class="btn-group" role="group")
+			div= "версия : "+locals.opts.version
+			div= "доступна : "+locals.handlers.get_last_version()
 if locals.opts.sidebar
 	+sidebar("visible")
 else

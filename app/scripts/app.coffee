@@ -6,13 +6,17 @@ constants =
 		blocks: [{val: "main_page", lab: "данные"},{val: "opts", lab: "опции"}]
 		sidebar: false
 		showing_block: "main_page"
+		version: '__VERSION__'
 	}
 	colors: () -> {red: '#CC3300', yellow: '#FFFF00', pink: '#FF6699'}
 #
 #	state for jade
 #
 init_state =
-	data: {foo: true}
+	data: {
+		foo: true
+		cache: {}
+	}
 	handlers: {
 		#
 		#	app local handlers
@@ -26,6 +30,14 @@ init_state =
 		#
 		#	local storage
 		#
+		get_last_version: () -> 
+			val = actor.get().data.cache.last_version
+			if not(val)
+				actor.cast((state) ->
+					res = $.ajax({type: 'GET', async: false, url: "http://"+location.host+"/version.json"}).responseJSON.versionExt
+					if Imuta.is_string(res) then state.data.cache.last_version = res
+					state)
+			val
 		reset_opts: () -> actor.cast((state) ->
 			state.opts = constants.default_opts()
 			store.remove("opts")
@@ -39,6 +51,9 @@ init_state =
 		load_opts: () -> 
 			from_storage = store.get("opts")
 			if from_storage then actor.cast((state) -> state.opts = from_storage ; state) else actor.get().handlers.reset_opts()
+			last_version = actor.get().handlers.get_last_version()
+			this_version = actor.get().opts.version
+			if not(Imuta.equal(this_version, last_version)) then error("Доступен клиент версии "+last_version+" но, вы используете клиент версии "+this_version+". Настоятельно рекомендуется сбросить опции, почистить кеш и обновить страницу.")
 			actor.cast((state) ->
 				state.opts.showing_block = constants.default_opts().showing_block
 				state.opts.sidebar = constants.default_opts().sidebar
