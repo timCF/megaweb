@@ -1,7 +1,7 @@
 #
 #	constants, defaults as callbacks arity 0
 #
-constants = 
+constants =
 	default_opts: () -> {
 		blocks: [{val: "main_page", lab: "данные"},{val: "opts", lab: "опции"}]
 		sidebar: false
@@ -24,13 +24,16 @@ init_state =
 		#
 		#	some main-purpose handlers
 		#
-		change_from_view: (path, ev) -> if (ev? and ev.target? and ev.target.value?) then actor.cast( (state) -> Imuta.put_in(state, path, ev.target.value) )
+		change_from_view: (path, ev) ->
+			if (ev? and ev.target? and ev.target.value?)
+				tmp = ev.target.value
+				actor.cast((state) -> Imuta.put_in(state, path, tmp))
 		change_from_view_swap: (path) -> actor.cast( (state) -> Imuta.update_in(state, path, (bool) -> not(bool)) )
 		show_block: (some) -> actor.cast( (state) -> (state.opts.showing_block = some) ; state )
 		#
 		#	local storage
 		#
-		get_last_version: () -> 
+		get_last_version: () ->
 			val = actor.get().data.cache.last_version
 			if not(val)
 				res = $.ajax({type: 'GET', async: false, url: "http://"+location.host+"/version.json"}).responseJSON.versionExt
@@ -50,7 +53,7 @@ init_state =
 			notice("Опции сохранены")
 			state)
 		# use it only on start of application
-		load_opts: () -> 
+		load_opts: () ->
 			from_storage = store.get("opts")
 			if from_storage then actor.cast((state) -> state.opts = from_storage ; state) else actor.get().handlers.reset_opts()
 			last_version = actor.get().handlers.get_last_version()
@@ -109,7 +112,7 @@ document.addEventListener "DOMContentLoaded", (e) ->
 	bullet.ondisconnect = () -> error("bullet websocket: соединение с сервером потеряно")
 	bullet.onclose = () -> warn("bullet websocket: соединение с сервером закрыто")
 	bullet.onheartbeat = () -> to_server("ping","nil")
-	bullet.onmessage = (e) -> 
+	bullet.onmessage = (e) ->
 		mess = $.parseJSON(e.data)
 		subject = mess.subject
 		content = mess.content
